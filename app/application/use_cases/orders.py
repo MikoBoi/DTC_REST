@@ -1,8 +1,10 @@
 from app.domain.models.order_models import Order, Product
 from app.domain.interfaces.order_interfaces import OrderRepository, ProductRepository
 from app.infrastructure.logging.logger import logger
+from app.infrastructure.cache.cache_service import order_cache
 
 from typing import Optional
+from types import SimpleNamespace
 
 class OrderUseCases:
     def __init__(self, order_repository: OrderRepository, product_repository: Optional[ProductRepository] = None):
@@ -16,6 +18,20 @@ class OrderUseCases:
         for p in order_create.products:
             product = Product(name=p.name, price=p.price, quantity=p.quantity, order_id=new_order.order_id)
             self.product_repository.add(product)
+
+        for_cache_dict = {
+            "total_price": order.total_price,
+            "order_id": new_order.order_id,
+            "user_id": order.user_id,
+            "customer_name": order.customer_name,
+            "status": order.status,
+            "is_deleted": new_order.is_deleted,
+            "products": [Product(name=p.name, price=p.price, quantity=p.quantity, order_id=new_order.order_id) for p in order.products]
+        }
+
+        for_cache = SimpleNamespace(**for_cache_dict)
+
+        order_cache.set(new_order.order_id, for_cache)
 
         logger.info(f"Order {new_order.order_id} created successfully")
         return order, {"order_id": new_order.order_id}
@@ -40,6 +56,8 @@ class OrderUseCases:
 
         self.order_repository.save(current_order)
 
+        order_cache.set(current_order.order_id, current_order)
+
         logger.info(f"Order {current_order.order_id} edited successfully")
         return current_order
 
@@ -50,12 +68,17 @@ class OrderUseCases:
 
         self.order_repository.save(current_order)
 
+        order_cache.delete(current_order.order_id)
+
         logger.info(f"Order {current_order.order_id} deleted successfully")
         return current_order
 
 
 
     def get_order_by_id(self, order_id):
-        order = self.order_repository.get_by_id(order_id)
-
+        order = order_cache.get(order_id)
+        if not order:
+            order = self.order_repository.get_by_id(order_id)
+            if order:
+                order_cache.set(order_id, order)
         return order
