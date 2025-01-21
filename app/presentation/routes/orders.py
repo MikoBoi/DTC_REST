@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from app.application.use_cases.orders import *
 from app.infrastructure.db import get_db
 from app.infrastructure.auth.auth_dependencies import get_current_user
@@ -17,12 +17,44 @@ def create_order(order_dto: OrderCreateDTO, db=Depends(get_db), current_user: Cu
     return order
 
 @router.get("/orders/{order_id}")
-def get_order():
-    return
+def get_order(order_id: int, db=Depends(get_db), current_user: CurrentUserDTO = Depends(get_current_user)):
+    order_repository = SQLAlchemyOrderRepository(db)
+    use_case = OrderUseCases(order_repository)
+    order = use_case.get_order_by_id(order_id)
+
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    if current_user["role"] != "ADMIN":
+        if order.user_id != int(current_user["user_id"]):
+            raise HTTPException(status_code=403, detail="Forbidden")
+
+    return {
+        "order_id": order.order_id,
+        "customer_name": order.customer_name,
+        "total_price": order.total_price,
+        "status": order.status,
+        "products": [{"name": p.name, "price": p.price, "quantity": p.quantity} for p in order.products]
+    }
 
 @router.get("/orders")
-def get_orders():
-    return
+def get_orders(status: str = None,
+               min_price: float = None,
+               max_price: float = None,
+               db=Depends(get_db), current_user: CurrentUserDTO = Depends(get_current_user)):
+    repository = SQLAlchemyOrderRepository(db)
+    orders = repository.get_orders(current_user, status, min_price, max_price)
+
+    if not orders:
+        raise HTTPException(status_code=404, detail="Orders not found")
+
+    return [{
+            "order_id": o.order_id,
+            "customer_name": o.customer_name,
+            "total_price": o.total_price,
+            "status": o.status,
+            "products": [{"name": p.name, "price": p.price, "quantity": p.quantity} for p in o.products]
+        } for o in orders]
 
 @router.put("/orders/{order_id}")
 def edit_order():

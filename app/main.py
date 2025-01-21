@@ -14,6 +14,7 @@ app = FastAPI(
 app.include_router(orders.router, prefix="/api/v1", tags=["Orders"])
 app.include_router(auth.auth_router, prefix="/auth", tags=["Authentication"])
 
+Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
 
 with SessionLocal() as db:

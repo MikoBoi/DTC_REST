@@ -48,3 +48,10 @@ class OrderUseCases:
         self.order_repository.save(current_order)
 
         return current_order
+
+
+
+    def get_order_by_id(self, order_id):
+        order = self.order_repository.get_by_id(order_id)
+
+        return order

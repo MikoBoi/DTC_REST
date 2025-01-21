@@ -25,7 +25,23 @@ class SQLAlchemyOrderRepository(OrderRepository):
         return order
 
     def get_by_id(self, order_id):
-        return
+        return self.session.query(Order).filter(Order.order_id == order_id, Order.is_deleted == False).first()
+
+    def get_orders(self, cur_usr, status=None, min_price=None, max_price=None):
+        query = self.session.query(Order)
+
+        query = query.filter(Order.is_deleted == False)
+
+        if cur_usr["role"] == "USER":
+            query = query.filter(Order.user_id == int(cur_usr["user_id"]))
+
+        if status:
+            query = query.filter(Order.status == status)
+        if min_price:
+            query = query.filter(Order.total_price >= min_price)
+        if max_price:
+            query = query.filter(Order.total_price <= max_price)
+        return query.all()
 
 
 
