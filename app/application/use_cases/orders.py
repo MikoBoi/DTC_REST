@@ -1,5 +1,6 @@
 from app.domain.models.order_models import Order, Product
 from app.domain.interfaces.order_interfaces import OrderRepository, ProductRepository
+from app.infrastructure.logging.logger import logger
 
 from typing import Optional
 
@@ -16,6 +17,7 @@ class OrderUseCases:
             product = Product(name=p.name, price=p.price, quantity=p.quantity, order_id=new_order.order_id)
             self.product_repository.add(product)
 
+        logger.info(f"Order {new_order.order_id} created successfully")
         return order, {"order_id": new_order.order_id}
 
 
@@ -38,6 +40,7 @@ class OrderUseCases:
 
         self.order_repository.save(current_order)
 
+        logger.info(f"Order {current_order.order_id} edited successfully")
         return current_order
 
 
@@ -47,6 +50,7 @@ class OrderUseCases:
 
         self.order_repository.save(current_order)
 
+        logger.info(f"Order {current_order.order_id} deleted successfully")
         return current_order
 
 
