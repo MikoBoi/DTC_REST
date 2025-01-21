@@ -57,8 +57,28 @@ def get_orders(status: str = None,
         } for o in orders]
 
 @router.put("/orders/{order_id}")
-def edit_order():
-    return
+def edit_order(order_id: int, order_upd_dto: OrderUpdateDTO, db=Depends(get_db), current_user: CurrentUserDTO = Depends(get_current_user)):
+    order_repository = SQLAlchemyOrderRepository(db)
+    product_repository = SQLAlchemyProductRepository(db)
+    order = order_repository.get_by_id(order_id)
+
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    if current_user["role"] != "ADMIN":
+        if order.user_id != int(current_user["user_id"]):
+            raise HTTPException(status_code=403, detail="Forbidden")
+
+    use_case = OrderUseCases(order_repository, product_repository)
+    edit_order = use_case.put(order_upd_dto, order)
+
+    return {
+        "order_id": edit_order.order_id,
+        "customer_name": edit_order.customer_name,
+        "total_price": edit_order.total_price,
+        "status": edit_order.status,
+        "products": [{"name": p.name, "price": p.price, "quantity": p.quantity} for p in edit_order.products]
+    }
 
 @router.delete("/orders/{order_id}")
 def delete_order():
