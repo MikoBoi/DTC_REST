@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 
 from app.infrastructure.db import SessionLocal, Base, engine
+from app.infrastructure.initial_data import seed_initial_users
+
 from app.presentation.routes import orders, auth
 
 app = FastAPI(
@@ -13,3 +15,6 @@ app.include_router(orders.router, prefix="/api/v1", tags=["Orders"])
 app.include_router(auth.auth_router, prefix="/auth", tags=["Authentication"])
 
 Base.metadata.create_all(bind=engine)
+
+with SessionLocal() as db:
+    seed_initial_users(db)
