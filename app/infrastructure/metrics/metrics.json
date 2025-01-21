@@ -1,0 +1,27 @@
+{
+    "POST /api/v1/orders": {
+        "success": 0,
+        "failure": 0,
+        "total": 0
+    },
+    "GET /api/v1/orders": {
+        "success": 0,
+        "failure": 0,
+        "total": 0
+    },
+    "GET /api/v1/orders/{order_id}": {
+        "success": 0,
+        "failure": 0,
+        "total": 0
+    },
+    "PUT /api/v1/orders/{order_id}": {
+        "success": 0,
+        "failure": 0,
+        "total": 0
+    },
+    "DELETE /api/v1/orders/{order_id}": {
+        "success": 0,
+        "failure": 0,
+        "total": 0
+    }
+}
