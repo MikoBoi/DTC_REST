@@ -5,7 +5,7 @@ from app.infrastructure.initial_data import seed_initial_users
 
 from app.infrastructure.logging.logger import logger
 
-from app.presentation.routes import orders, auth
+from app.presentation.routes import orders, auth, cache
 
 app = FastAPI(
     title="Order Management API",
@@ -22,6 +22,7 @@ async def log_requests(request: Request, call_next):
 
 app.include_router(orders.router, prefix="/api/v1", tags=["Orders"])
 app.include_router(auth.auth_router, prefix="/auth", tags=["Authentication"])
+app.include_router(cache.cache_router, prefix="/cache", tags=["Cache"])
 
 Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
