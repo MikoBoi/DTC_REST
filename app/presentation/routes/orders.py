@@ -81,5 +81,21 @@ def edit_order(order_id: int, order_upd_dto: OrderUpdateDTO, db=Depends(get_db),
     }
 
 @router.delete("/orders/{order_id}")
-def delete_order():
-    return
+def delete_order(order_id: int, db=Depends(get_db), current_user: CurrentUserDTO = Depends(get_current_user)):
+    repository = SQLAlchemyOrderRepository(db)
+    order = repository.get_by_id(order_id)
+
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    if current_user["role"] != "ADMIN":
+        if order.user_id != int(current_user["user_id"]):
+            raise HTTPException(status_code=403, detail="Forbidden")
+
+    use_case = OrderUseCases(repository)
+    delete_order = use_case.delete(order)
+
+    return {
+        "order_id": delete_order.order_id,
+        "is_deleted": delete_order.is_deleted
+    }
