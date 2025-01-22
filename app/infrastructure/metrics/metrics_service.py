@@ -2,7 +2,7 @@ import json
 import os
 
 class Metrics:
-    def __init__(self, file_path="./app/infrastructure/metrics/metrics.json"):
+    def __init__(self, file_path="/app/infrastructure/metrics/metrics.json"):
         self.file_path = file_path
         self.data = self.load_metrics()
 
