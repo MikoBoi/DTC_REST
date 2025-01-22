@@ -48,7 +48,7 @@ app.include_router(auth.auth_router, prefix="/auth", tags=["Authentication"])
 app.include_router(metrics.metrics_router, tags=["Metrics"])
 app.include_router(cache.cache_router, prefix="/cache", tags=["Cache"])
 
-Base.metadata.drop_all(bind=engine)
+# Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
 
 with SessionLocal() as db:

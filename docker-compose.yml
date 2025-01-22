@@ -1,0 +1,23 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./app/infrastructure:/app/infrastructure
+    ports:
+      - "8085:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: uvicorn app.main:app --host=0.0.0.0 --reload --port=8000
+
+  pytest:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./app/infrastructure:/app/infrastructure
+      - ./htmlcov:/app/htmlcov
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: pytest --cov-report html --cov=app

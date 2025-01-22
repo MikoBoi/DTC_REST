@@ -1,27 +1,27 @@
 {
     "POST /api/v1/orders": {
-        "success": 32,
-        "failure": 16,
-        "total": 48
+        "success": 0,
+        "failure": 0,
+        "total": 0
     },
     "GET /api/v1/orders": {
-        "success": 16,
+        "success": 0,
         "failure": 0,
-        "total": 16
+        "total": 0
     },
     "GET /api/v1/orders/{order_id}": {
-        "success": 16,
-        "failure": 32,
-        "total": 48
+        "success": 0,
+        "failure": 0,
+        "total": 0
     },
     "PUT /api/v1/orders/{order_id}": {
-        "success": 16,
-        "failure": 32,
-        "total": 48
+        "success": 0,
+        "failure": 0,
+        "total": 0
     },
     "DELETE /api/v1/orders/{order_id}": {
-        "success": 8,
-        "failure": 16,
-        "total": 24
+        "success": 0,
+        "failure": 0,
+        "total": 0
     }
 }
