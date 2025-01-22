@@ -8,6 +8,9 @@ from app.presentation.dto import *
 
 auth_router = APIRouter()
 
+# После успешной авторизаций генерируется токен.
+# Необходимо этот токен использовать в Header, ключ: token
+# Генерированный token имеет срок, 30 минут
 @auth_router.post("/login")
 def login(
     data: AuthDTO = Depends(),

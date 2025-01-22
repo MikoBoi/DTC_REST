@@ -8,6 +8,7 @@ class LoginUseCase:
         self.user_repository = user_repository
         self.token_service = token_service
 
+    # Проверяем введенные данные в /auth/login
     def execute(self, username: str, password: str) -> dict:
         user = self.user_repository.get_by_username(username)
         if not user or user.password != password:

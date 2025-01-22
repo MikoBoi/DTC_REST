@@ -19,6 +19,7 @@ class OrderUseCases:
             product = Product(name=p.name, price=p.price, quantity=p.quantity, order_id=new_order.order_id)
             self.product_repository.add(product)
 
+        # Словарь кэширования.
         for_cache_dict = {
             "total_price": order.total_price,
             "order_id": new_order.order_id,
@@ -29,20 +30,23 @@ class OrderUseCases:
             "products": [Product(name=p.name, price=p.price, quantity=p.quantity, order_id=new_order.order_id) for p in order.products]
         }
 
+        # Превращаем словарь в объект с атрибутами.
+        # Данное решение для обретения единой формы кэширования.
         for_cache = SimpleNamespace(**for_cache_dict)
 
-        order_cache.set(new_order.order_id, for_cache)
+        order_cache.set(new_order.order_id, for_cache)    # Добавляем запись в кэш.
 
-        logger.info(f"Order {new_order.order_id} created successfully")
+        logger.info(f"Order {new_order.order_id} created successfully")    # Логгирование
         return order, {"order_id": new_order.order_id}
 
 
 
+    # Изменение заказа по ID.
     def put(self, order_upd, current_order):
         if order_upd.status:
-            current_order.status = order_upd.status
+            current_order.status = order_upd.status     # Обновляем статус.
 
-        if order_upd.products:
+        if order_upd.products:                          # Добавляем новые продукты в запись.
             current_order.total_price += sum(p.price * p.quantity for p in order_upd.products)
 
             for product_data in order_upd.products:
@@ -56,25 +60,29 @@ class OrderUseCases:
 
         self.order_repository.save(current_order)
 
-        order_cache.set(current_order.order_id, current_order)
+        order_cache.set(current_order.order_id, current_order)    # Обновляем запись в кэше.
 
-        logger.info(f"Order {current_order.order_id} edited successfully")
+        logger.info(f"Order {current_order.order_id} edited successfully")    # Логгирование
         return current_order
 
 
 
+    # Мягкое удаление, меняем значение поля заказа "is_deleted" на True.
+    # Данные заказы не будут отображаться.
     def delete(self, current_order):
         current_order.is_deleted = True
 
         self.order_repository.save(current_order)
 
-        order_cache.delete(current_order.order_id)
+        order_cache.delete(current_order.order_id)  # Удаляем из кэша
 
-        logger.info(f"Order {current_order.order_id} deleted successfully")
+        logger.info(f"Order {current_order.order_id} deleted successfully")    # Логгирование
         return current_order
 
 
 
+    # Получение заказа по ID.
+    # Если записи в кэше не существует, то обращаемся в БД и после чего записываем в кэш.
     def get_order_by_id(self, order_id):
         order = order_cache.get(order_id)
         if not order:

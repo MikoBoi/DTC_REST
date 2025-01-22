@@ -3,6 +3,7 @@ from app.infrastructure.cache.cache_service import order_cache
 
 cache_router = APIRouter()
 
+# Вывод данных в кэше
 @cache_router.get("/orders")
 def get_cache_orders():
     cached_orders = order_cache.get_all()
