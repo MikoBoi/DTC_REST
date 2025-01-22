@@ -90,3 +90,9 @@ class OrderUseCases:
             if order:
                 order_cache.set(order_id, order)
         return order
+
+    def get_orders_filter(self, cur_usr, status=None, min_price=None, max_price=None):
+        orders = self.order_repository.get_orders(cur_usr, status, min_price, max_price)
+        for order in orders:
+            order_cache.set(order.order_id, order)
+        return orders

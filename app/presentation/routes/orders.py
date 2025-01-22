@@ -63,7 +63,8 @@ def get_orders(request: Request,
                max_price: float = None,
                db=Depends(get_db), current_user: CurrentUserDTO = Depends(get_current_user)):
     repository = SQLAlchemyOrderRepository(db)
-    orders = repository.get_orders(current_user, status, min_price, max_price)
+    use_case = OrderUseCases(repository)
+    orders = use_case.get_orders_filter(current_user, status, min_price, max_price)
 
     if not orders:
         collect_metrics(request.method + " " + request.scope["route"].path, success=False)
